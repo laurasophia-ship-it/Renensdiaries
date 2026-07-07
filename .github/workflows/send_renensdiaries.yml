@@ -1,0 +1,28 @@
+name: Send Renens Diaries
+
+on:
+  schedule:
+    # 18:00 UTC ≈ 20:00 en Suisse (CEST)
+    - cron: "0 18 * * *"
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run script
+        run: |
+          python main.py
