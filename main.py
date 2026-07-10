@@ -28,14 +28,14 @@ def get_sunset_time():
 
 
 def get_swiss_sport_news():
-    url = "https://www.swissinfo.ch/service/rss/sport"
+    url = "https://www.srf.ch/news/sport/feed"
     resp = requests.get(url)
     resp.raise_for_status()
 
     root = ET.fromstring(resp.content)
     items = root.findall(".//item")
 
-    news_lines = ["🏅 Sport en Suisse (Swissinfo) :"]
+    news_lines = ["🏅 Sport en Suisse (SRF) :"]
 
     for item in items[:3]:
         title = item.find("title").text
