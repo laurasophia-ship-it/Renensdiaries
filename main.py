@@ -29,17 +29,17 @@ def get_sunset_time():
 
 def get_swiss_sport_news():
     """
-    Résumé cute des dernières actualités sportives (ESPN).
+    Résumé cute des actualités sportives suisses via Bing News RSS.
     Fonctionne dans GitHub Actions sans headers.
     """
-    url = "https://www.espn.com/espn/rss/news"
+    url = "https://www.bing.com/news/search?q=sport+suisse&format=rss"
     resp = requests.get(url)
     resp.raise_for_status()
 
     root = ET.fromstring(resp.content)
     items = root.findall(".//item")
 
-    news_lines = ["🏅 Sport du jour (ESPN) :"]
+    news_lines = ["🏅 Sport en Suisse (Bing News) :"]
 
     for item in items[:3]:
         title = item.find("title").text
