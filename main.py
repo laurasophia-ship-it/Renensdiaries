@@ -1,6 +1,7 @@
 import requests
 import random
 from datetime import date
+import xml.etree.ElementTree as ET
 
 NTFY_SERVER = "https://ntfy.sh"
 NTFY_TOPIC = "Renensdiaries"  # ton canal de diffusion
@@ -11,10 +12,6 @@ RENENS_LNG = 6.5881
 
 
 def get_sunset_time():
-    """
-    Récupère l'heure du coucher de soleil à Renens pour aujourd'hui
-    via une API publique.
-    """
     url = "https://api.sunrise-sunset.org/json"
     params = {
         "lat": RENENS_LAT,
@@ -26,26 +23,29 @@ def get_sunset_time():
     resp = requests.get(url, params=params)
     resp.raise_for_status()
     data = resp.json()["results"]["sunset"]
-    # Exemple: "2026-07-07T19:22:59+00:00" → on garde juste l'heure
     sunset_time = data.split("T")[1][:5]
     return sunset_time
 
 
 def get_swiss_sport_news():
-    """
-    TODO: ici on pourrait aller chercher les actus sport suisses
-    (par ex. télétext ou site sportif).
-    Pour l'instant, on met un texte fixe.
-    """
-    return "🏅 Sport en Suisse : résultats et actus du jour (à compléter)."
+    url = "https://www.rts.ch/rss/sport.xml"
+    resp = requests.get(url)
+    resp.raise_for_status()
+
+    root = ET.fromstring(resp.content)
+    items = root.findall(".//item")
+
+    news_lines = ["🏅 Sport en Suisse (RTS) :"]
+
+    for item in items[:3]:
+        title = item.find("title").text
+        news_lines.append(f"• {title} 💫")
+
+    return "\n".join(news_lines)
 
 
 def get_aquarius_horoscope():
-    """
-    TODO: aller chercher l’horoscope Verseau sur le site LFM.
-    Pour l’instant, texte fixe.
-    """
-    return "♒ Horoscope Verseau LFM : aujourd’hui, fais confiance à ton intuition."
+    return "♒ Horoscope Verseau : aujourd’hui, fais confiance à ton intuition ✨"
 
 
 def get_cute_animal_emoji():
@@ -53,12 +53,15 @@ def get_cute_animal_emoji():
     return random.choice(emojis)
 
 
-def get_ai_text():
-    """
-    Texte 'créé par l’IA'.
-    Plus tard, tu pourras le remplacer par un vrai appel à une API d’IA.
-    """
-    return "Petit texte inspirant du jour : tu as fait de ton mieux, et c’est déjà énorme."
+def get_cute_phrase():
+    phrases = [
+        "Tu as fait de ton mieux aujourd’hui, et c’est déjà trop mignon 🐥",
+        "Même les petits pas comptent, et tu en as fait plein ✨",
+        "Tu mérites un câlin imaginaire, juste parce que tu es toi 🐻",
+        "Aujourd’hui tu as été adorable, même si tu ne t’en rends pas compte 💛",
+        "Tu fais fondre le monde un petit peu chaque jour 🌼",
+    ]
+    return random.choice(phrases)
 
 
 def build_message():
@@ -67,10 +70,10 @@ def build_message():
     sport = get_swiss_sport_news()
     horoscope = get_aquarius_horoscope()
     animal = get_cute_animal_emoji()
-    ai_text = get_ai_text()
+    cute_phrase = get_cute_phrase()
 
     lines = [
-        "bravo Dudu la journée est finie !",
+        "bravo Dudu la journée est finie ! ✨",
         f"📅 Date : {today}",
         f"🌇 Coucher de soleil à Renens : {sunset}",
         "",
@@ -78,9 +81,9 @@ def build_message():
         "",
         horoscope,
         "",
-        ai_text,
+        f"💛 Phrase cute du jour : {cute_phrase}",
         "",
-        f"Animal mignon du jour : {animal}",
+        f"🐾 Animal mignon du jour : {animal}",
     ]
 
     return "\n".join(lines)
