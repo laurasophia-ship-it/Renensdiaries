@@ -28,8 +28,19 @@ def get_sunset_time():
 
 
 def get_swiss_sport_news():
+    """
+    Récupère les dernières actualités sportives depuis RTS Sport (flux RSS).
+    Style cute sport ✨
+    """
     url = "https://www.rts.ch/rss/sport.xml"
-    resp = requests.get(url)
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/126.0 Safari/537.36"
+    }
+
+    resp = requests.get(url, headers=headers)
     resp.raise_for_status()
 
     root = ET.fromstring(resp.content)
